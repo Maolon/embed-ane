@@ -131,7 +131,8 @@ final class ImageInputReader: Sendable {
         try await withCheckedThrowingContinuation { continuation in
             let once = ResumeOnce(continuation)
             queue.async { once.resume(with: Result { try work() }) }
-            queue.asyncAfter(deadline: .now() + timeout) {
+            // The timer runs on its own queue so it fires even if the read queue is starved.
+            DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + timeout) {
                 once.resume(with: .failure(EmbedANEError.invalidRequest(
                     "Timed out opening the local \(kind). macOS may be waiting for permission to read that location: allow it in the prompt, or under System Settings > Privacy & Security > Files and Folders.",
                     param: "input")))
