@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- 3x3 cores lit at the brightness of embedding values. -->
+  <circle cx="402" cy="402" r="44" fill="#DDFBF5"/>
+  <circle cx="512" cy="402" r="44" fill="#3A9E95"/>
+  <circle cx="622" cy="402" r="44" fill="#6FD8CA"/>
+  <circle cx="402" cy="512" r="44" fill="#2A7A76"/>
+  <circle cx="512" cy="512" r="44" fill="#A8EEE3"/>
+  <circle cx="622" cy="512" r="44" fill="#4AB8AC"/>
+  <circle cx="402" cy="622" r="44" fill="#63CFC1"/>
+  <circle cx="512" cy="622" r="44" fill="#256D6B"/>
+  <circle cx="622" cy="622" r="44" fill="#F4FFFD"/>
+</svg>

@@ -1,0 +1,28 @@
+# Swift / Xcode
+/.build/
+/.swiftpm/
+*.swiftdoc
+xcuserdata/
+DerivedData/
+
+# Release artifacts
+/dist/
+*.dmg
+
+# Model files never belong in this repository
+/models/
+*.mlpackage/
+*.mlmodelc/
+*.aimodel/
+*.npy
+*.safetensors
+
+# Secrets and signing material
+.env
+.env.*
+*.p12
+*.cer
+*.mobileprovision
+
+# macOS
+.DS_Store

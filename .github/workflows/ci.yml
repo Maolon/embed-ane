@@ -1,0 +1,26 @@
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  test:
+    # Xcode 26+ is required to compile the Icon Composer app icon.
+    runs-on: macos-26
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Toolchain
+        run: |
+          swift --version
+          xcodebuild -version
+          sw_vers
+      - name: Build
+        run: swift build
+      - name: Test
+        run: swift test
+      - name: App (unsigned compile; no model execution)
+        run: bash scripts/build-app.sh

@@ -1,0 +1,58 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {};
+	objectVersion = 56;
+	objects = {
+		C3126047D8C623AA2E18BF72 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppDelegate.swift"; sourceTree = "<group>"; };
+		480467BE8DA717AC04E424B3 = { isa = PBXBuildFile; fileRef = C3126047D8C623AA2E18BF72; };
+		4DFA24EA7308F9312F398904 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppEnvironment.swift"; sourceTree = "<group>"; };
+		CBF56FC6889340641FDDDBEC = { isa = PBXBuildFile; fileRef = 4DFA24EA7308F9312F398904; };
+		C2ACD0EA37DF2A3151702943 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppSettingsView.swift"; sourceTree = "<group>"; };
+		63BD0D7B29EA9DB71D63FFC0 = { isa = PBXBuildFile; fileRef = C2ACD0EA37DF2A3151702943; };
+		86BC9D472CFD4E28A389F51D = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MainWindow.swift"; sourceTree = "<group>"; };
+		66BD338425C94955B84FBAB9 = { isa = PBXBuildFile; fileRef = 86BC9D472CFD4E28A389F51D; };
+		A8027102BB48465C8CA1C11A = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DesignSystem.swift"; sourceTree = "<group>"; };
+		A8027102BB48465C8CA1C11B = { isa = PBXBuildFile; fileRef = A8027102BB48465C8CA1C11A; };
+		A8027102BB48465C8CA1C12A = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DashboardTools.swift"; sourceTree = "<group>"; };
+		A8027102BB48465C8CA1C12B = { isa = PBXBuildFile; fileRef = A8027102BB48465C8CA1C12A; };
+		A8027102BB48465C8CA1C13A = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EmbeddingPlayground.swift"; sourceTree = "<group>"; };
+		A8027102BB48465C8CA1C13B = { isa = PBXBuildFile; fileRef = A8027102BB48465C8CA1C13A; };
+		A8027102BB48465C8CA1C14A = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ModelsPane.swift"; sourceTree = "<group>"; };
+		A8027102BB48465C8CA1C14B = { isa = PBXBuildFile; fileRef = A8027102BB48465C8CA1C14A; };
+		A8027102BB48465C8CA1C15A = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StatusGlyph.swift"; sourceTree = "<group>"; };
+		A8027102BB48465C8CA1C15B = { isa = PBXBuildFile; fileRef = A8027102BB48465C8CA1C15A; };
+		A8027102BB48465C8CA1C16A = { isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
+		A8027102BB48465C8CA1C16B = { isa = PBXBuildFile; fileRef = A8027102BB48465C8CA1C16A; };
+		33B134B30A13662B32483EE8 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EmbedANEApp.swift"; sourceTree = "<group>"; };
+		437F27B309E275A8126F378F = { isa = PBXBuildFile; fileRef = 33B134B30A13662B32483EE8; };
+		7AE885612150C3C07A2C5C0E = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MenuContent.swift"; sourceTree = "<group>"; };
+		95E5E0ADC5FAF56AA1D4B162 = { isa = PBXBuildFile; fileRef = 7AE885612150C3C07A2C5C0E; };
+		FE831B8836D78D9692F2AA2B = { isa = XCSwiftPackageProductDependency; productName = EmbedANEAppSupport; };
+		4D23B226CB12FC28B6D7AC58 = { isa = PBXBuildFile; productRef = FE831B8836D78D9692F2AA2B; };
+		B8820865A5D4F3A9338D7E9C = { isa = XCSwiftPackageProductDependency; productName = EmbedANECore; };
+		F465529A97EFFBD33A54AE82 = { isa = PBXBuildFile; productRef = B8820865A5D4F3A9338D7E9C; };
+		0BC862A2297557189153C3A0 = { isa = XCSwiftPackageProductDependency; productName = EmbedANEHTTP; };
+		17A857F0C4C578DF4785E6AC = { isa = PBXBuildFile; productRef = 0BC862A2297557189153C3A0; };
+		11C7068B2806D4C043D0799B = { isa = XCSwiftPackageProductDependency; productName = EmbedANEDownload; };
+		05B5D291DC1A9FFA2D710B08 = { isa = PBXBuildFile; productRef = 11C7068B2806D4C043D0799B; };
+		E839902A3EAA8FE864D85E63 = { isa = XCLocalSwiftPackageReference; relativePath = ".."; };
+		5EC4815391784CD7DC7BCF68 = { isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Embed ANE.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		EF8975011F8B041C00B43B6B = { isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		F9D5BE6C4DEFF9E859A408A0 = { isa = PBXGroup; children = (C3126047D8C623AA2E18BF72, 4DFA24EA7308F9312F398904, C2ACD0EA37DF2A3151702943, 86BC9D472CFD4E28A389F51D, A8027102BB48465C8CA1C11A, A8027102BB48465C8CA1C12A, A8027102BB48465C8CA1C13A, 33B134B30A13662B32483EE8, 7AE885612150C3C07A2C5C0E, A8027102BB48465C8CA1C14A, A8027102BB48465C8CA1C15A,); path = Sources; sourceTree = "<group>"; };
+		70E0696F1B3777FBA8CB4534 = { isa = PBXGroup; children = (5EC4815391784CD7DC7BCF68,); name = Products; sourceTree = "<group>"; };
+		2C27D053A90988BA6A924063 = { isa = PBXGroup; children = (F9D5BE6C4DEFF9E859A408A0, A8027102BB48465C8CA1C16A, EF8975011F8B041C00B43B6B, 70E0696F1B3777FBA8CB4534,); sourceTree = "<group>"; };
+		2E44DFAA7391189B0B42CE8F = { isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (480467BE8DA717AC04E424B3, CBF56FC6889340641FDDDBEC, 63BD0D7B29EA9DB71D63FFC0, 66BD338425C94955B84FBAB9, A8027102BB48465C8CA1C11B, A8027102BB48465C8CA1C12B, A8027102BB48465C8CA1C13B, 437F27B309E275A8126F378F, 95E5E0ADC5FAF56AA1D4B162, A8027102BB48465C8CA1C14B, A8027102BB48465C8CA1C15B,); runOnlyForDeploymentPostprocessing = 0; };
+		CEE29AACF6C76323B01932A9 = { isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (4D23B226CB12FC28B6D7AC58, F465529A97EFFBD33A54AE82, 17A857F0C4C578DF4785E6AC, 05B5D291DC1A9FFA2D710B08,); runOnlyForDeploymentPostprocessing = 0; };
+		F5E273F3E31E15FCDC2C75EB = { isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (A8027102BB48465C8CA1C16B,); runOnlyForDeploymentPostprocessing = 0; };
+		4391D15EAB3674FBEC49FCE9 = { isa = XCBuildConfiguration; buildSettings = { ARCHS = "arm64"; SDKROOT = "macosx"; MACOSX_DEPLOYMENT_TARGET = "15.0"; SWIFT_VERSION = "6.0"; SWIFT_STRICT_CONCURRENCY = "complete"; CLANG_ENABLE_MODULES = "YES"; CLANG_ENABLE_OBJC_ARC = "YES"; GCC_C_LANGUAGE_STANDARD = "gnu17"; SWIFT_OPTIMIZATION_LEVEL = "-Onone"; DEBUG_INFORMATION_FORMAT = "dwarf"; ENABLE_TESTABILITY = "YES"; SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)"; }; name = Debug; };
+		E00183B56F724ABB0BA9F040 = { isa = XCBuildConfiguration; buildSettings = { ARCHS = "arm64"; SDKROOT = "macosx"; MACOSX_DEPLOYMENT_TARGET = "15.0"; SWIFT_VERSION = "6.0"; SWIFT_STRICT_CONCURRENCY = "complete"; CLANG_ENABLE_MODULES = "YES"; CLANG_ENABLE_OBJC_ARC = "YES"; GCC_C_LANGUAGE_STANDARD = "gnu17"; SWIFT_OPTIMIZATION_LEVEL = "-O"; DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym"; ENABLE_TESTABILITY = "NO"; }; name = Release; };
+		A4869807AB7D83A0512FD6E6 = { isa = XCConfigurationList; buildConfigurations = (4391D15EAB3674FBEC49FCE9, E00183B56F724ABB0BA9F040,); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		6F23B53BC661A89AA72B6B74 = { isa = XCBuildConfiguration; buildSettings = { PRODUCT_NAME = "Embed ANE"; PRODUCT_MODULE_NAME = "EmbedANEApp"; PRODUCT_BUNDLE_IDENTIFIER = "com.maolon.embed-ane"; INFOPLIST_FILE = "Info.plist"; GENERATE_INFOPLIST_FILE = "NO"; CODE_SIGN_STYLE = "Automatic"; ENABLE_APP_SANDBOX = "NO"; ENABLE_HARDENED_RUNTIME = "YES"; SUPPORTED_PLATFORMS = "macosx"; LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks"; CURRENT_PROJECT_VERSION = "1"; MARKETING_VERSION = "0.1.0"; COMBINE_HIDPI_IMAGES = "YES"; ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon"; }; name = Debug; };
+		C392B593A2E4498571C15502 = { isa = XCBuildConfiguration; buildSettings = { PRODUCT_NAME = "Embed ANE"; PRODUCT_MODULE_NAME = "EmbedANEApp"; PRODUCT_BUNDLE_IDENTIFIER = "com.maolon.embed-ane"; INFOPLIST_FILE = "Info.plist"; GENERATE_INFOPLIST_FILE = "NO"; CODE_SIGN_STYLE = "Automatic"; ENABLE_APP_SANDBOX = "NO"; ENABLE_HARDENED_RUNTIME = "YES"; SUPPORTED_PLATFORMS = "macosx"; LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks"; CURRENT_PROJECT_VERSION = "1"; MARKETING_VERSION = "0.1.0"; COMBINE_HIDPI_IMAGES = "YES"; ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon"; }; name = Release; };
+		4A938EDAE1AD524ED2BB003E = { isa = XCConfigurationList; buildConfigurations = (6F23B53BC661A89AA72B6B74, C392B593A2E4498571C15502,); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		B218F642F1C60E3C129DD9E4 = { isa = PBXNativeTarget; buildConfigurationList = 4A938EDAE1AD524ED2BB003E; buildPhases = (2E44DFAA7391189B0B42CE8F, CEE29AACF6C76323B01932A9, F5E273F3E31E15FCDC2C75EB,); buildRules = (); dependencies = (); name = App; packageProductDependencies = (FE831B8836D78D9692F2AA2B, B8820865A5D4F3A9338D7E9C, 0BC862A2297557189153C3A0, 11C7068B2806D4C043D0799B,); productName = "Embed ANE"; productReference = 5EC4815391784CD7DC7BCF68; productType = "com.apple.product-type.application"; };
+		7B6DE629407E917366EFBB1C = { isa = PBXProject; attributes = { BuildIndependentTargetsInParallel = YES; LastUpgradeCheck = 1630; TargetAttributes = { B218F642F1C60E3C129DD9E4 = { CreatedOnToolsVersion = 16.3; }; }; }; buildConfigurationList = A4869807AB7D83A0512FD6E6; compatibilityVersion = "Xcode 14.0"; developmentRegion = en; hasScannedForEncodings = 0; knownRegions = (en, Base,); mainGroup = 2C27D053A90988BA6A924063; packageReferences = (E839902A3EAA8FE864D85E63,); productRefGroup = 70E0696F1B3777FBA8CB4534; projectDirPath = ""; projectRoot = ""; targets = (B218F642F1C60E3C129DD9E4,); };
+	};
+	rootObject = 7B6DE629407E917366EFBB1C;
+}

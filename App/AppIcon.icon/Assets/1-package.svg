@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- Rounded Neural Engine package with a pin-1 mark. No pins: the silhouette stays soft. -->
+  <rect x="164" y="164" width="696" height="696" rx="196" fill="#173640"/>
+  <circle cx="270" cy="270" r="26" fill="#7FE3D4"/>
+</svg>
