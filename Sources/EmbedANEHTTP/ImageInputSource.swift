@@ -112,22 +112,43 @@ struct VideoInputSource: Sendable {
     }
 }
 
+/// Runs blocking file checks and reads off the event loop.
+///
+/// `open()` on a privacy-protected location (an external volume, Desktop,
+/// Documents, ...) blocks until the user answers macOS's permission prompt,
+/// which may never happen for a background app. So the work runs on a
+/// concurrent queue (one blocked file cannot hold up other requests) and the
+/// request gives up after `timeout` with an actionable error.
 final class ImageInputReader: Sendable {
-    private let queue = DispatchQueue(label: "embed-ane.http.image-files", qos: .userInitiated)
-    func validate(_ source: VideoInputSource) async throws -> URL {
+    private let queue = DispatchQueue(label: "embed-ane.http.media-files", qos: .userInitiated, attributes: .concurrent)
+    private let timeout: DispatchTimeInterval
+    init(timeout: DispatchTimeInterval = .seconds(20)) { self.timeout = timeout }
+
+    func validate(_ source: VideoInputSource) async throws -> URL { try await run(kind: "video") { try source.validate() } }
+    func read(_ source: ImageInputSource) async throws -> Data { try await run(kind: "image") { try source.read() } }
+
+    func run<T: Sendable>(kind: String, _ work: @escaping @Sendable () throws -> T) async throws -> T {
         try await withCheckedThrowingContinuation { continuation in
-            queue.async {
-                do { continuation.resume(returning: try source.validate()) }
-                catch { continuation.resume(throwing: error) }
+            let once = ResumeOnce(continuation)
+            queue.async { once.resume(with: Result { try work() }) }
+            queue.asyncAfter(deadline: .now() + timeout) {
+                once.resume(with: .failure(EmbedANEError.invalidRequest(
+                    "Timed out opening the local \(kind). macOS may be waiting for permission to read that location: allow it in the prompt, or under System Settings > Privacy & Security > Files and Folders.",
+                    param: "input")))
             }
         }
     }
-    func read(_ source: ImageInputSource) async throws -> Data {
-        try await withCheckedThrowingContinuation { continuation in
-            queue.async {
-                do { continuation.resume(returning: try source.read()) }
-                catch { continuation.resume(throwing: error) }
-            }
-        }
+}
+
+/// Resumes a continuation exactly once, whichever of the read or the timeout finishes first.
+private final class ResumeOnce<T: Sendable>: @unchecked Sendable {
+    private let lock = NSLock()
+    private var continuation: CheckedContinuation<T, any Error>?
+    init(_ continuation: CheckedContinuation<T, any Error>) { self.continuation = continuation }
+    func resume(with result: Result<T, any Error>) {
+        lock.withLock { () -> CheckedContinuation<T, any Error>? in
+            defer { continuation = nil }
+            return continuation
+        }?.resume(with: result)
     }
 }

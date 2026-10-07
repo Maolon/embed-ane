@@ -137,6 +137,8 @@ Images and videos use **content parts**. This is an extension of the OpenAI form
 | Image | `data:image/*;base64,…` or `file:///absolute/path` | 64 MiB, at most 384 visual tokens |
 | Video | `file:///absolute/path` (`.mp4`, `.mov`, …) | 2 GiB; sampled at 2 fps, 4–8 frames |
 
+Files on external volumes or in Desktop, Documents and Downloads are protected by macOS: the first request for such a path makes macOS ask whether Embed ANE may read it. Allow it in the prompt or under System Settings > Privacy & Security > Files and Folders. Until then the request fails after 20 seconds with an error that says so.
+
 Other endpoints: `GET /health` (state, queue, memory). The full contract is in [SPEC.md](SPEC.md) and [docs/](docs/).
 
 CLI commands:
