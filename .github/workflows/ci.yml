@@ -21,6 +21,11 @@ jobs:
       - name: Build
         run: swift build
       - name: Test
+        # A one-thread cooperative pool exposes tests that block it (CI VMs
+        # have few cores, so such tests hang there but pass on a laptop).
+        env:
+          LIBDISPATCH_COOPERATIVE_POOL_STRICT: "1"
+        timeout-minutes: 15
         run: swift test
       - name: App (unsigned compile; no model execution)
         run: bash scripts/build-app.sh

@@ -140,151 +140,167 @@ private final class MockCoreAILoader: CoreAIAssetLoading, @unchecked Sendable {
     }
 }
 
+/// `CoreAIAsyncBridge.runSync` blocks its caller on a semaphore while a Task
+/// runs the async CoreAI call. Production calls it only on the serial worker's
+/// own thread; tests do the same, or a small cooperative pool (CI runners)
+/// deadlocks.
+private func onDedicatedThread(_ body: @escaping @Sendable () throws -> Void) async throws {
+    try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, any Error>) in
+        Thread { continuation.resume(with: Result { try body() }) }.start()
+    }
+}
+
 @Suite("CoreAI Cascade Backend Contracts")
 struct CoreAICascadeBackendTests {
-    @Test func prepareThrowsWhenUnloaded() throws {
-        let fixture = try CoreAITestTableFixture(); defer { fixture.remove() }
-        let table = try MappedEmbeddingTable(url: fixture.file)
-        let tokenizer = VisionFixtureTokenizer(ids: [7])
-        let loader = MockCoreAILoader()
-        let bookmarkDir = FileManager.default.temporaryDirectory.appendingPathComponent("bm-\(UUID())")
-        defer { try? FileManager.default.removeItem(at: bookmarkDir) }
-        let bookmarkStore = CoreAIBookmarkStore(directory: bookmarkDir)
+    @Test func prepareThrowsWhenUnloaded() async throws {
+        try await onDedicatedThread {
+            let fixture = try CoreAITestTableFixture(); defer { fixture.remove() }
+            let table = try MappedEmbeddingTable(url: fixture.file)
+            let tokenizer = VisionFixtureTokenizer(ids: [7])
+            let loader = MockCoreAILoader()
+            let bookmarkDir = FileManager.default.temporaryDirectory.appendingPathComponent("bm-\(UUID())")
+            defer { try? FileManager.default.removeItem(at: bookmarkDir) }
+            let bookmarkStore = CoreAIBookmarkStore(directory: bookmarkDir)
 
-        let backend = CoreAICascadeBackend(
-            bundle: fixture.root,
-            modelID: "test-model",
-            loader: loader,
-            bookmarkStore: bookmarkStore,
-            injectedTokenizer: tokenizer,
-            injectedTable: table
-        )
+            let backend = CoreAICascadeBackend(
+                bundle: fixture.root,
+                modelID: "test-model",
+                loader: loader,
+                bookmarkStore: bookmarkStore,
+                injectedTokenizer: tokenizer,
+                injectedTable: table
+            )
 
-        // Must throw modelNotLoaded before load()
-        #expect(throws: EmbedANEError.self) {
-            try backend.prepare(["hello"])
-        }
+            // Must throw modelNotLoaded before load()
+            #expect(throws: EmbedANEError.self) {
+                try backend.prepare(["hello"])
+            }
 
-        let report = try backend.load()
-        #expect(report.perChunkNS.count == 6)
+            let report = try backend.load()
+            #expect(report.perChunkNS.count == 6)
 
-        // Now prepare succeeds
-        let request = try backend.prepare(["hello"])
-        #expect(request.inputs.count == 1)
+            // Now prepare succeeds
+            let request = try backend.prepare(["hello"])
+            #expect(request.inputs.count == 1)
 
-        // Unload
-        _ = try backend.unload()
+            // Unload
+            _ = try backend.unload()
 
-        // Must throw modelNotLoaded again after unload
-        #expect(throws: EmbedANEError.self) {
-            try backend.prepare(["hello"])
-        }
-        #expect(throws: EmbedANEError.self) {
-            try backend.predict(request)
+            // Must throw modelNotLoaded again after unload
+            #expect(throws: EmbedANEError.self) {
+                try backend.prepare(["hello"])
+            }
+            #expect(throws: EmbedANEError.self) {
+                try backend.predict(request)
+            }
         }
     }
 
-    @Test func loadSequenceBookmarkCacheSpecialize() throws {
-        let fixture = try CoreAITestTableFixture(); defer { fixture.remove() }
-        let table = try MappedEmbeddingTable(url: fixture.file)
-        let tokenizer = VisionFixtureTokenizer(ids: [7])
-        let bookmarkDir = FileManager.default.temporaryDirectory.appendingPathComponent("bm-\(UUID())")
-        defer { try? FileManager.default.removeItem(at: bookmarkDir) }
-        let bookmarkStore = CoreAIBookmarkStore(directory: bookmarkDir)
+    @Test func loadSequenceBookmarkCacheSpecialize() async throws {
+        try await onDedicatedThread {
+            let fixture = try CoreAITestTableFixture(); defer { fixture.remove() }
+            let table = try MappedEmbeddingTable(url: fixture.file)
+            let tokenizer = VisionFixtureTokenizer(ids: [7])
+            let bookmarkDir = FileManager.default.temporaryDirectory.appendingPathComponent("bm-\(UUID())")
+            defer { try? FileManager.default.removeItem(at: bookmarkDir) }
+            let bookmarkStore = CoreAIBookmarkStore(directory: bookmarkDir)
 
-        // First pass: clean store -> must specialize all 6 chunks
-        let loader1 = MockCoreAILoader()
-        let backend1 = CoreAICascadeBackend(
-            bundle: fixture.root,
-            modelID: "test-model",
-            loader: loader1,
-            bookmarkStore: bookmarkStore,
-            injectedTokenizer: tokenizer,
-            injectedTable: table
-        )
-        _ = try backend1.load()
-        #expect(loader1.loadHistory.count == 6)
-        #expect(loader1.loadHistory.allSatisfy { $0.source == .specialize })
+            // First pass: clean store -> must specialize all 6 chunks
+            let loader1 = MockCoreAILoader()
+            let backend1 = CoreAICascadeBackend(
+                bundle: fixture.root,
+                modelID: "test-model",
+                loader: loader1,
+                bookmarkStore: bookmarkStore,
+                injectedTokenizer: tokenizer,
+                injectedTable: table
+            )
+            _ = try backend1.load()
+            #expect(loader1.loadHistory.count == 6)
+            #expect(loader1.loadHistory.allSatisfy { $0.source == .specialize })
 
-        // Second pass: same store has bookmarks -> must hit bookmark for all 6 chunks
-        let loader2 = MockCoreAILoader()
-        let backend2 = CoreAICascadeBackend(
-            bundle: fixture.root,
-            modelID: "test-model",
-            loader: loader2,
-            bookmarkStore: bookmarkStore,
-            injectedTokenizer: tokenizer,
-            injectedTable: table
-        )
-        _ = try backend2.load()
-        #expect(loader2.loadHistory.count == 6)
-        #expect(loader2.loadHistory.allSatisfy { $0.source == .bookmark })
+            // Second pass: same store has bookmarks -> must hit bookmark for all 6 chunks
+            let loader2 = MockCoreAILoader()
+            let backend2 = CoreAICascadeBackend(
+                bundle: fixture.root,
+                modelID: "test-model",
+                loader: loader2,
+                bookmarkStore: bookmarkStore,
+                injectedTokenizer: tokenizer,
+                injectedTable: table
+            )
+            _ = try backend2.load()
+            #expect(loader2.loadHistory.count == 6)
+            #expect(loader2.loadHistory.allSatisfy { $0.source == .bookmark })
 
-        // Third pass: corrupt bookmark -> falls back to cache hit
-        let loader3 = MockCoreAILoader()
-        loader3.simulateBookmarkCorrupt = true
-        loader3.simulateCacheHit = true
-        let backend3 = CoreAICascadeBackend(
-            bundle: fixture.root,
-            modelID: "test-model",
-            loader: loader3,
-            bookmarkStore: bookmarkStore,
-            injectedTokenizer: tokenizer,
-            injectedTable: table
-        )
-        _ = try backend3.load()
-        #expect(loader3.loadHistory.count == 6)
-        #expect(loader3.loadHistory.allSatisfy { $0.source == .cache })
+            // Third pass: corrupt bookmark -> falls back to cache hit
+            let loader3 = MockCoreAILoader()
+            loader3.simulateBookmarkCorrupt = true
+            loader3.simulateCacheHit = true
+            let backend3 = CoreAICascadeBackend(
+                bundle: fixture.root,
+                modelID: "test-model",
+                loader: loader3,
+                bookmarkStore: bookmarkStore,
+                injectedTokenizer: tokenizer,
+                injectedTable: table
+            )
+            _ = try backend3.load()
+            #expect(loader3.loadHistory.count == 6)
+            #expect(loader3.loadHistory.allSatisfy { $0.source == .cache })
+        }
     }
 
-    @Test func predictFeedsExactTensorNamesAndOutputsUnnormalized() throws {
-        let fixture = try CoreAITestTableFixture(); defer { fixture.remove() }
-        let table = try MappedEmbeddingTable(url: fixture.file)
-        let tokenizer = VisionFixtureTokenizer(ids: [7, 8])
-        let loader = MockCoreAILoader()
-        let bookmarkDir = FileManager.default.temporaryDirectory.appendingPathComponent("bm-\(UUID())")
-        defer { try? FileManager.default.removeItem(at: bookmarkDir) }
-        let bookmarkStore = CoreAIBookmarkStore(directory: bookmarkDir)
+    @Test func predictFeedsExactTensorNamesAndOutputsUnnormalized() async throws {
+        try await onDedicatedThread {
+            let fixture = try CoreAITestTableFixture(); defer { fixture.remove() }
+            let table = try MappedEmbeddingTable(url: fixture.file)
+            let tokenizer = VisionFixtureTokenizer(ids: [7, 8])
+            let loader = MockCoreAILoader()
+            let bookmarkDir = FileManager.default.temporaryDirectory.appendingPathComponent("bm-\(UUID())")
+            defer { try? FileManager.default.removeItem(at: bookmarkDir) }
+            let bookmarkStore = CoreAIBookmarkStore(directory: bookmarkDir)
 
-        let backend = CoreAICascadeBackend(
-            bundle: fixture.root,
-            modelID: "test-model",
-            loader: loader,
-            bookmarkStore: bookmarkStore,
-            injectedTokenizer: tokenizer,
-            injectedTable: table
-        )
-        _ = try backend.load()
+            let backend = CoreAICascadeBackend(
+                bundle: fixture.root,
+                modelID: "test-model",
+                loader: loader,
+                bookmarkStore: bookmarkStore,
+                injectedTokenizer: tokenizer,
+                injectedTable: table
+            )
+            _ = try backend.load()
 
-        let request = try backend.prepare(["two words"])
-        let result = try backend.predict(request)
+            let request = try backend.prepare(["two words"])
+            let result = try backend.predict(request)
 
-        #expect(result.embeddings.count == 1)
-        let emb = result.embeddings[0]
-        #expect(emb.count == 2048)
-        // Verify output was NOT re-normalized: raw values [3.0, 4.0, ...] preserved!
-        #expect(emb[0] == 3.0)
-        #expect(emb[1] == 4.0)
+            #expect(result.embeddings.count == 1)
+            let emb = result.embeddings[0]
+            #expect(emb.count == 2048)
+            // Verify output was NOT re-normalized: raw values [3.0, 4.0, ...] preserved!
+            #expect(emb[0] == 3.0)
+            #expect(emb[1] == 4.0)
 
-        // Check recorded inputs for chunk 0...4
-        for c in 0..<5 {
-            let fn = loader.functions[c]!
-            #expect(fn.recordedInputs.count == 1)
-            let inputs = fn.recordedInputs[0]
-            #expect(inputs["hidden_in"] != nil)
-            #expect(inputs["cos"] != nil)
-            #expect(inputs["sin"] != nil)
-            #expect(inputs["attention_mask"] == nil)
+            // Check recorded inputs for chunk 0...4
+            for c in 0..<5 {
+                let fn = loader.functions[c]!
+                #expect(fn.recordedInputs.count == 1)
+                let inputs = fn.recordedInputs[0]
+                #expect(inputs["hidden_in"] != nil)
+                #expect(inputs["cos"] != nil)
+                #expect(inputs["sin"] != nil)
+                #expect(inputs["attention_mask"] == nil)
+            }
+
+            // Check recorded inputs for chunk 5
+            let fn5 = loader.functions[5]!
+            #expect(fn5.recordedInputs.count == 1)
+            let inputs5 = fn5.recordedInputs[0]
+            #expect(inputs5["hidden_in"] != nil)
+            #expect(inputs5["cos"] != nil)
+            #expect(inputs5["sin"] != nil)
+            #expect(inputs5["attention_mask"] != nil)
+            #expect(inputs5["attention_mask"]?.shape == [1, 512])
         }
-
-        // Check recorded inputs for chunk 5
-        let fn5 = loader.functions[5]!
-        #expect(fn5.recordedInputs.count == 1)
-        let inputs5 = fn5.recordedInputs[0]
-        #expect(inputs5["hidden_in"] != nil)
-        #expect(inputs5["cos"] != nil)
-        #expect(inputs5["sin"] != nil)
-        #expect(inputs5["attention_mask"] != nil)
-        #expect(inputs5["attention_mask"]?.shape == [1, 512])
     }
 }

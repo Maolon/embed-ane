@@ -647,6 +647,12 @@ public actor WorkerSession: AppSession, SupervisorSessionControlling {
     }
 
     private func handleWorkerExit(status: Int32) {
+        // Exit notifications hop through a Task, so the exit of a worker that
+        // was deliberately replaced can arrive after its successor is running
+        // and `intentionalTermination` was reset. Treating that as a crash
+        // restarted a healthy worker on busy machines. The current worker is
+        // not the one that exited while a worker is still running.
+        guard !workerController.isRunning else { return }
         guard state == .ready, !intentionalTermination else {
             if state != .starting {
                 state = .down
