@@ -7,19 +7,33 @@
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![Language](https://img.shields.io/badge/language-Swift_6-orange.svg)](https://swift.org)
 [![Platform](https://img.shields.io/badge/platform-macOS_15+_·_Apple_silicon-lightgrey.svg)](#requirements)
-[![Model](https://img.shields.io/badge/🤗_model-WeMM--Embedding--2B--CoreML--ANE-yellow.svg)](https://huggingface.co/maolon/WeMM-Embedding-2B-CoreML-ANE)
+[![Model](https://img.shields.io/badge/model-WeMM--Embedding--2B--CoreML--ANE-yellow.svg)](https://huggingface.co/maolon/WeMM-Embedding-2B-CoreML-ANE)
 
-**Text, image and video embeddings on your Mac's Neural Engine, behind an OpenAI-compatible endpoint.**
+**A private, always-on embedding service for your Mac, so local search, RAG and AI agents can index text, images and video without the cloud and without tying up the GPU.**
 
-[Performance](#-measured-performance) • [Features](#-key-features) • [Why](#️-why-embed-ane) • [Quickstart](#-quickstart) • [API](#️-api-reference) • [Architecture](#️-architecture)
+[Why](#why-it-exists) • [Quickstart](#quickstart) • [Performance](#measured-performance) • [API](#api-reference) • [Architecture](#architecture)
 
 </div>
 
 ---
 
-Embed ANE serves [WeMM-Embedding-2B](https://huggingface.co/tencent/WeMM-Embedding-2B), a 2,048-dimensional multimodal embedding model, from the Apple Neural Engine. Inference stays off the GPU and mostly off the CPU, so the fans stay quiet while your editor, indexer or agent embeds documents in the background. It runs as a menu bar app or a CLI daemon and answers `POST /v1/embeddings` on `127.0.0.1`.
+## Why it exists
 
-## ⚡ Measured Performance
+Retrieval needs embeddings: to search your notes, screenshots, photos and recordings by meaning, or to give a coding agent or chat assistant memory of your files. Today that usually means one of two compromises:
+
+- **Send your data to a cloud embedding API.** Every document, image and clip leaves your machine, costs money per call, and needs a network connection.
+- **Run an embedding model on the GPU.** The GPU is what your local LLM, editor and display need, so indexing competes with them, and long jobs spin up the fans.
+
+Embed ANE removes both compromises. It runs an open multimodal embedding model, [WeMM-Embedding-2B](https://huggingface.co/tencent/WeMM-Embedding-2B), on the **Apple Neural Engine**: dedicated silicon that sits idle on most Macs. Your data never leaves the machine, the GPU stays free for generation, and the Mac stays quiet while a background indexer works through thousands of items.
+
+It is built to be **infrastructure you forget about**:
+- a menu bar app (or CLI daemon) that can start at login;
+- one OpenAI-compatible endpoint, `POST /v1/embeddings` on `127.0.0.1`, that any RAG framework, vector database client or agent tool can use unchanged;
+- text, images and video in **one vector space**, so a text query finds the screenshot or clip it describes.
+
+Typical uses: semantic search over a personal knowledge base, photo or screen-recording search, local RAG for a self-hosted LLM, and memory for coding agents. All of it runs offline.
+
+## Measured performance
 
 | Metric | Measured result |
 | --- | --- |
@@ -34,31 +48,31 @@ Embed ANE serves [WeMM-Embedding-2B](https://huggingface.co/tencent/WeMM-Embeddi
 
 ---
 
-## 🌟 Key Features
+## Features
 
-### 1. 🧠 One model, three modalities
+### One model for text, images and video
 Text, images and short videos share one vector space, so a text query can retrieve a screenshot or a clip. Images and videos are embedded together with optional text, using the original model's prompt format exactly.
 
-### 2. 🔌 Drop-in OpenAI API
+### Drop-in OpenAI API
 Point any OpenAI client at `http://127.0.0.1:8080/v1` and call `embeddings.create`. Strings, string arrays and token arrays work unchanged. Images and videos use content parts (see [API](#️-api-reference)).
 
-### 3. 🤫 Neural Engine, not GPU
+### Neural Engine, not GPU
 All 24 decoder layers and the vision encoder run as Core ML programs on the ANE. A request costs a fraction of a watt, and the GPU stays free for everything else.
 
-### 4. 🪶 Lives in the menu bar
+### Lives in the menu bar
 The menu bar glyph shows the model state at a glance (ready, standby, loading, error). From the menu you can copy the endpoint, load or unload the model, switch models and open the dashboard: Overview, Models, Playground and Logs.
 
 <!-- TODO screenshot: docs/assets/menu.png -->
 
-### 5. 🔒 Local and verified
+### Local and verified
 The server listens on loopback only. Models download from Hugging Face against a digest-pinned spec, and every file is checked before it loads. Request text, images and vectors are never logged.
 
-### 6. 💤 Memory on demand
+### Memory on demand
 Keep the model loaded, or unload it after an idle period and reload it on the next request.
 
 ---
 
-## ⚖️ Why Embed ANE?
+## How it compares
 
 | | Embed ANE | Cloud embedding APIs | GPU runtimes (MLX, llama.cpp, Ollama) |
 | --- | --- | --- | --- |
@@ -72,7 +86,7 @@ Embed ANE complements [Anemll](https://github.com/Anemll/Anemll), which runs cha
 
 ---
 
-## 🚀 Quickstart
+## Quickstart
 
 ### Requirements
 Apple silicon, macOS 15 or later, and about 5 GB of free disk space (4.2 GB of model files plus the Neural Engine compile cache). Keep some headroom: when the startup disk is nearly full, macOS may clear the compile cache, and the next load then has to recompile.
@@ -98,7 +112,7 @@ vectors = client.embeddings.create(model="wemm-embedding-2b-ane",
 
 ---
 
-## 🛠️ API Reference
+## API reference
 
 `POST /v1/embeddings` follows the OpenAI embeddings API: `input` (string, array of strings, array of token ids, or array of token-id arrays), optional `dimensions` (1–2048, Matryoshka truncation with renormalization) and `encoding_format` (`float` or `base64`).
 
@@ -139,7 +153,7 @@ Configuration lives in `~/.embed-ane/config.yaml`; the menu bar app's Settings w
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```mermaid
 flowchart LR
@@ -172,10 +186,10 @@ bash scripts/package-dmg.sh 1.0.0  # ad-hoc signed DMG + CLI tarball in dist/
 
 ---
 
-## 🤝 Ecosystem & Contributing
+## Contributing
 
 Issues and pull requests are welcome; see [AGENTS.md](AGENTS.md) for the module layout, test commands and rules (no model files in this repository).
 
-## 📄 License
+## License
 
 Apache-2.0, see [LICENSE](LICENSE). The model weights are © Tencent under Apache-2.0 with third-party components under their own licenses; see the [model card](https://huggingface.co/maolon/WeMM-Embedding-2B-CoreML-ANE). Please cite the [WeMM-Embedding technical report](https://arxiv.org/abs/2608.24053) when you use the model.
